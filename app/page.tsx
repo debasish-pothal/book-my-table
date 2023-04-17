@@ -49,7 +49,7 @@ export default function Home() {
           </div>
           {/* header ends */}
           {/* cards starts */}
-          <div className="py-3 px-36 mt-10 flex flex-wrap justify-center">
+          <div className="py-3 px-20 mt-8 flex flex-wrap justify-center">
             {/* card starts */}
             <div className="w-64 h-72 m-3 rounded overflow-hidden border cursor-pointer">
               <img
