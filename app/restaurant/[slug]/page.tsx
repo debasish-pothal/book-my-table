@@ -1,3 +1,4 @@
+import { PrismaClient } from "@prisma/client";
 import RestaurantNavbar from "./components/RestaurantNavbar";
 import Title from "./components/Title";
 import Rating from "./components/Rating";
@@ -6,15 +7,52 @@ import Images from "./components/Images";
 import Reviews from "./components/Reviews";
 import ReservationCard from "./components/ReservationCard";
 
-export default function RestaurantDetails() {
+interface Restaurant {
+  id: number;
+  name: string;
+  images: string[];
+  slug: string;
+  description: string;
+}
+
+const prisma = new PrismaClient();
+
+const fetchRestaurantBySlug = async (slug: string): Promise<Restaurant> => {
+  const restaurant = await prisma.restaurant.findUnique({
+    where: {
+      slug,
+    },
+    select: {
+      id: true,
+      name: true,
+      images: true,
+      slug: true,
+      description: true,
+    },
+  });
+
+  if (!restaurant) {
+    throw new Error();
+  }
+
+  return restaurant;
+};
+
+export default async function RestaurantDetails({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  const restaurant = await fetchRestaurantBySlug(params.slug);
+
   return (
     <>
       <div className="bg-white w-[70%] rounded p-3 shadow">
-        <RestaurantNavbar />
-        <Title />
+        <RestaurantNavbar slug={restaurant.slug} />
+        <Title name={restaurant.name} />
         <Rating />
-        <Description />
-        <Images />
+        <Description description={restaurant.description} />
+        <Images images={restaurant.images} />
         <Reviews />
       </div>
       <div className="w-[27%] relative text-reg">
