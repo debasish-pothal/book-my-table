@@ -15,7 +15,7 @@ const getRestaurantMenuBySlug = async (slug: string) => {
   });
 
   if (!restaurant) {
-    throw new Error();
+    throw new Error("Something went wrong!");
   }
 
   return restaurant.items;

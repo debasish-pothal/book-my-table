@@ -6,6 +6,7 @@ import Description from "./components/Description";
 import Images from "./components/Images";
 import Reviews from "./components/Reviews";
 import ReservationCard from "./components/ReservationCard";
+import { notFound } from "next/navigation";
 
 interface Restaurant {
   id: number;
@@ -34,7 +35,8 @@ const fetchRestaurantBySlug = async (slug: string): Promise<Restaurant> => {
   });
 
   if (!restaurant) {
-    throw new Error();
+    notFound()
+    // throw new Error("Something went wrong!");
   }
 
   return restaurant;
