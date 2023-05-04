@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import AuthModal from "./AuthModal";
 
 export default function NavBar() {
   return (
@@ -10,12 +11,8 @@ export default function NavBar() {
       </Link>
       <div>
         <div className="flex">
-          <button className="bg-blue-400 text-white border px-3 py-2 rounded-md text-sm font-medium hover:cursor-pointer">
-            Sign in
-          </button>
-          <button className="text-black border px-3 py-2 rounded-md text-sm font-medium ml-2 hover:cursor-pointer">
-            Sign up
-          </button>
+          <AuthModal isSignin={true} />
+          <AuthModal isSignin={false} />
         </div>
       </div>
     </nav>
