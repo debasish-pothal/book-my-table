@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import validator from "validator";
 import bcrypt from "bcrypt";
 import * as jose from "jose";
+import { setCookie } from "cookies-next";
 
 const prisma = new PrismaClient();
 
@@ -30,23 +31,29 @@ export async function POST(req: NextRequest) {
   });
 
   if (errors.length) {
-    return NextResponse.json({ errors }, { status: 400 });
+    return NextResponse.json({ errorMessage: errors[0] }, { status: 400 });
   }
 
   const userWithEmail = await prisma.user.findUnique({
     where: {
-        email
-    }
+      email,
+    },
   });
 
   if (!userWithEmail) {
-    return NextResponse.json({ error: "User does not exists" }, { status: 401 });
+    return NextResponse.json(
+      { errorMessage: "User does not exists" },
+      { status: 401 }
+    );
   }
 
   const isMatch = await bcrypt.compare(password, userWithEmail.password);
 
   if (!isMatch) {
-    return NextResponse.json({ error: "Email or password is invalid" }, { status: 401 });
+    return NextResponse.json(
+      { errorMessage: "Email or password is invalid" },
+      { status: 401 }
+    );
   }
 
   const algo = "HS256";
@@ -57,5 +64,15 @@ export async function POST(req: NextRequest) {
     .setExpirationTime("24h")
     .sign(secret);
 
-    return NextResponse.json({token}, {status: 200})
+  const userData = {
+    firstName: userWithEmail.first_name,
+    lastName: userWithEmail.last_name,
+    phone: userWithEmail.phone,
+    city: userWithEmail.city,
+    email: userWithEmail.email
+  };
+
+  return NextResponse.json(userData, { status: 200, headers: {
+    'Set-Cookie': `jwt=${token}; Max-Age=8640; Path=/`
+  } });
 }

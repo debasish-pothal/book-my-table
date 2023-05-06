@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import Box from "@mui/material/Box";
-import Modal from "@mui/material/Modal";
+import { useEffect, useState, useContext } from "react";
 import AuthModalInputs from "./AuthModalInputs";
+import useAuth from "@/hooks/useAuth";
+import { AuthenticationContext } from "../context/AuthContext";
+import { CircularProgress, Box, Modal, Alert } from "@mui/material";
 
 const style = {
   position: "absolute" as "absolute",
@@ -21,14 +22,15 @@ export default function AuthModal({ isSignin }: { isSignin: boolean }) {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const { loading, data, error } = useContext(AuthenticationContext);
 
-  const [disabled, setDisabled] = useState(true);
+  const { signin, signup } = useAuth();
 
   const handleClick = () => {
     if (isSignin) {
-      // signin({ email: inputs.email, password: inputs.password }, handleClose);
+      signin({ email: inputs.email, password: inputs.password }, handleClose);
     } else {
-      // signup(inputs, handleClose);
+      signup(inputs, handleClose);
     }
   };
 
@@ -40,6 +42,29 @@ export default function AuthModal({ isSignin }: { isSignin: boolean }) {
     city: "",
     password: "",
   });
+
+  const [disabled, setDisabled] = useState(true);
+
+  useEffect(() => {
+    if (isSignin) {
+      if (inputs.password && inputs.email) {
+        return setDisabled(false);
+      }
+    } else {
+      if (
+        inputs.firstName &&
+        inputs.lastName &&
+        inputs.email &&
+        inputs.password &&
+        inputs.city &&
+        inputs.phone
+      ) {
+        return setDisabled(false);
+      }
+    }
+
+    setDisabled(true);
+  }, [inputs]);
 
   const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputs({
@@ -72,15 +97,27 @@ export default function AuthModal({ isSignin }: { isSignin: boolean }) {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <div className="p2">
-            <div className="uppercase font-bold text-center pb-2 border-b mb-2">
-                <p className="text-small text-black">
-                    {isSignin ? "Sign In" : "Create Account"}
-                </p>
+          {loading ? (
+            <div className="py-24 px-2 flex justify-center">
+              <CircularProgress />
             </div>
-            <div className="m-auto">
+          ) : (
+            <div className="p2">
+              {error ? (
+                <Alert severity="error" className="mb-4">
+                  {error}
+                </Alert>
+              ) : null}
+              <div className="uppercase font-bold text-center pb-2 border-b mb-2">
+                <p className="text-small text-black">
+                  {isSignin ? "Sign In" : "Create Account"}
+                </p>
+              </div>
+              <div className="m-auto">
                 <h2 className="text-2xl font-light text-black text-center">
-                {isSignin ? "Login to your account" : "Create your new account"}
+                  {isSignin
+                    ? "Login to your account"
+                    : "Create your new account"}
                 </h2>
                 <AuthModalInputs
                   inputs={inputs}
@@ -94,8 +131,9 @@ export default function AuthModal({ isSignin }: { isSignin: boolean }) {
                 >
                   {isSignin ? "Sign In" : "Create Account"}
                 </button>
+              </div>
             </div>
-          </div>
+          )}
         </Box>
       </Modal>
     </div>

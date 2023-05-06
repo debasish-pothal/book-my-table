@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
   });
 
   if (errors.length) {
-    return NextResponse.json({ errors }, { status: 400 });
+    return NextResponse.json({ errorMessage: errors[0] }, { status: 400 });
   }
 
   const userWithEmail = await prisma.user.findUnique({
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
 
   if (userWithEmail) {
     return NextResponse.json(
-      { error: "Email is already used" },
+      { errorMessage: "Email is already used" },
       { status: 400 }
     );
   }
@@ -90,5 +90,9 @@ export async function POST(req: NextRequest) {
     .setExpirationTime("24h")
     .sign(secret);
 
-  return NextResponse.json({...user, token}, { status: 200 });
+  
+
+  return NextResponse.json({...user}, { status: 200, headers: {
+    'Set-Cookie': `jwt=${token}; Max-Age=8640; Path=/`
+  } });
 }
