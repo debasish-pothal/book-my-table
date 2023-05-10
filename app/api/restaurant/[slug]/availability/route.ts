@@ -11,14 +11,16 @@ interface SlugParam {
 }
 
 export async function GET(req: NextRequest, { params }: SlugParam) {
-  console.log(params);
-    const slug = params.slug;
-    const day = req.nextUrl.searchParams.get("day");
-    const time = req.nextUrl.searchParams.get("time");
-    const partySize = req.nextUrl.searchParams.get("partySize");
+  const slug = params.slug;
+  const day = req.nextUrl.searchParams.get("day");
+  const time = req.nextUrl.searchParams.get("time");
+  const partySize = req.nextUrl.searchParams.get("partySize");
 
   if (!day || !time || !partySize) {
-    return NextResponse.json({ errorMessage: "Invalid data provided" }, { status: 400 });
+    return NextResponse.json(
+      { errorMessage: "Invalid data provided" },
+      { status: 400 }
+    );
   }
 
   const restaurant = await prisma.restaurant.findUnique({
@@ -33,7 +35,10 @@ export async function GET(req: NextRequest, { params }: SlugParam) {
   });
 
   if (!restaurant) {
-    return NextResponse.json({ errorMessage: "Invalid data provided" }, { status: 400 });
+    return NextResponse.json(
+      { errorMessage: "Invalid data provided" },
+      { status: 400 }
+    );
   }
 
   const searchTimesWithTables = await findAvailabileTables({
@@ -43,7 +48,10 @@ export async function GET(req: NextRequest, { params }: SlugParam) {
   });
 
   if (!searchTimesWithTables) {
-    return NextResponse.json({ errorMessage: "Invalid data provided" }, { status: 400 });
+    return NextResponse.json(
+      { errorMessage: "Invalid data provided" },
+      { status: 400 }
+    );
   }
 
   const availabilities = searchTimesWithTables
